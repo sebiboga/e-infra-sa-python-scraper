@@ -13,3 +13,7 @@ Proiectul folosește GitHub Actions pentru a rula zilnic. Credențialele pentru 
 - `einfra_group_scraper.py`: Scriptul principal de scraping.
 - `solr_connection.py`: Utilitar pentru conexiunea cu Solr.
 - `.github/workflows/scraper.yml`: Configurația pentru rulare automată.
+- `OPEN_SOURCE.md`: Ghidul de standarde pentru repozitoare publice.
+
+## Standarde Proiect
+Acest repozitoriu respectă standardele definite în [OPEN_SOURCE.md](OPEN_SOURCE.md).
