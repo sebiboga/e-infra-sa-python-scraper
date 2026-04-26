@@ -31,6 +31,8 @@ Refer to [readme.md](readme.md) for the detailed schema of the `job` and `compan
 
 ### Job Model Fields
 `url`, `title`, `company`, `cif`, `location`, `tags`, `workmode`, `date`, `status`, `vdate`, `expirationdate`, `salary`.
+- **`date`**: Must be added dynamically in UTC ISO8601 format (ex: "2026-04-26T10:00:00Z").
+- **`cif`**: Must be explicitly mapped and included for each job's company to avoid collisions.
 
 ### Company Model Fields
 `id` (CUI), `company`, `brand`, `group`, `status`, `location`, `website`, `career`, `lastScraped`, `scraperFile`.
