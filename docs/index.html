@@ -34,10 +34,7 @@
       font-size: 1.5em;
       color: #e08d21;
     }
-    .header a {
-      text-decoration: none;
-      color: #333;
-    }
+    .header a { text-decoration: none; color: #333; }
     .container {
       display: flex;
       flex-wrap: wrap;
@@ -76,20 +73,9 @@
       font-weight: bold;
       color: #e08d21;
     }
-    .scraper-info {
-      text-align: center;
-      width: 100%;
-    }
-    .scraper-info h1 {
-      color: #333;
-      margin-bottom: 10px;
-      font-size: 1.8em;
-    }
-    .scraper-info p {
-      color: #666;
-      margin-bottom: 20px;
-      line-height: 1.6;
-    }
+    .scraper-info { text-align: center; width: 100%; }
+    .scraper-info h1 { color: #333; margin-bottom: 10px; font-size: 1.8em; }
+    .scraper-info p { color: #666; margin-bottom: 20px; line-height: 1.6; }
     .stats {
       display: flex;
       justify-content: center;
@@ -104,16 +90,8 @@
       text-align: center;
       min-width: 140px;
     }
-    .stat-value {
-      font-size: 2em;
-      font-weight: bold;
-      color: #fff;
-    }
-    .stat-label {
-      font-size: 0.85em;
-      opacity: 0.9;
-      color: #fff;
-    }
+    .stat-value { font-size: 2em; font-weight: bold; color: #fff; }
+    .stat-label { font-size: 0.85em; opacity: 0.9; color: #fff; }
     .features {
       background: #f8f9fa;
       border-radius: 10px;
@@ -121,10 +99,7 @@
       margin: 20px 0;
       width: 100%;
     }
-    .features h3 {
-      color: #333;
-      margin-bottom: 15px;
-    }
+    .features h3 { color: #333; margin-bottom: 15px; }
     .features ul {
       list-style: none;
       display: flex;
@@ -158,9 +133,7 @@
       margin: 10px 0;
       transition: transform 0.2s;
     }
-    .btn:hover {
-      transform: translateY(-2px);
-    }
+    .btn:hover { transform: translateY(-2px); }
     .company-section {
       margin-top: 30px;
       width: 100%;
@@ -184,9 +157,12 @@
       border-radius: 20px;
       font-size: 0.8em;
     }
-    .company-section ul {
-      list-style: none;
+    .company-section .no-jobs {
+      color: #999;
+      font-style: italic;
+      padding: 10px 0;
     }
+    .company-section ul { list-style: none; }
     .company-section li {
       padding: 10px 0;
       border-bottom: 1px solid #eee;
@@ -196,34 +172,7 @@
       text-decoration: none;
       font-weight: 500;
     }
-    .company-section a:hover {
-      text-decoration: underline;
-    }
-    .company-info {
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 20px 0;
-      width: 100%;
-    }
-    .company-info h3 {
-      color: #333;
-      margin-bottom: 15px;
-    }
-    .company-details {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .company-details .detail-item {
-      background: #fff;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 0.9em;
-    }
-    .company-details .detail-item strong {
-      color: #e08d21;
-    }
+    .company-section a:hover { text-decoration: underline; }
     .footer {
       margin-top: 30px;
       text-align: center;
@@ -231,21 +180,11 @@
       font-size: 0.9em;
       padding: 20px;
     }
-    .footer a {
-      color: #e08d21;
-      text-decoration: none;
-    }
+    .footer a { color: #e08d21; text-decoration: none; }
     @media (max-width: 768px) {
-      .stats {
-        flex-direction: column;
-        align-items: center;
-      }
-      .stat {
-        width: 80%;
-      }
-      .features ul {
-        flex-direction: column;
-      }
+      .stats { flex-direction: column; align-items: center; }
+      .stat { width: 80%; }
+      .features ul { flex-direction: column; }
     }
   </style>
 </head>
@@ -269,16 +208,16 @@
         
         <div class="stats">
           <div class="stat">
-            <div class="stat-value" id="totalJobs">-</div>
+            <div class="stat-value" id="totalJobs">0</div>
             <div class="stat-label">Total Job-uri</div>
           </div>
           <div class="stat">
-            <div class="stat-value" id="companiesCount">-</div>
+            <div class="stat-value" id="companiesCount">6</div>
             <div class="stat-label">Companii</div>
           </div>
           <div class="stat">
             <div class="stat-value" id="lastRunTime">-</div>
-            <div class="stat-value-small" id="lastRunDate">-</div>
+            <div class="stat-label" style="font-size: 0.7em; color: #fff;" id="lastRunDate"></div>
           </div>
         </div>
         
@@ -322,14 +261,19 @@
     ];
 
     async function getJobs(companyName) {
-      const res = await fetch(`https://api.peviitor.ro/v1/search/?company=${encodeURIComponent(companyName)}&page=1`, {
-        headers: {
-          'origin': 'https://peviitor.ro',
-          'referer': 'https://peviitor.ro/'
-        }
-      });
-      const data = await res.json();
-      return data.response.docs;
+      let allJobs = [];
+      let page = 1;
+      while (true) {
+        const res = await fetch(`https://api.peviitor.ro/v1/search/?company=${encodeURIComponent(companyName)}&page=${page}`, {
+          headers: { 'origin': 'https://peviitor.ro', 'referer': 'https://peviitor.ro/' }
+        });
+        const data = await res.json();
+        const docs = data.response?.docs || [];
+        if (!docs.length) break;
+        allJobs.push(...docs);
+        page++;
+      }
+      return allJobs;
     }
 
     async function loadStats() {
@@ -344,12 +288,14 @@
 
       for (const comp of companies) {
         const jobs = await getJobs(comp.name);
-        if (jobs.length > 0) {
+        const jobCount = jobs.length;
+        
+        const section = document.createElement('div');
+        section.className = 'company-section';
+        
+        if (jobCount > 0) {
           companiesWithJobs++;
-          totalJobs += jobs.length;
-          
-          const section = document.createElement('div');
-          section.className = 'company-section';
+          totalJobs += jobCount;
           
           let jobsHtml = '';
           jobs.forEach(job => {
@@ -357,11 +303,17 @@
           });
           
           section.innerHTML = `
-            <h3>${comp.name} <span class="job-count">${jobs.length} job-uri</span></h3>
+            <h3>${comp.name} <span class="job-count">${jobCount} job-uri</span></h3>
             <ul>${jobsHtml}</ul>
           `;
-          listDiv.appendChild(section);
+        } else {
+          section.innerHTML = `
+            <h3>${comp.name} <span class="job-count">0 job-uri</span></h3>
+            <p class="no-jobs">Nu sunt job-uri disponibile momentan</p>
+          `;
         }
+        
+        listDiv.appendChild(section);
       }
 
       document.getElementById('totalJobs').textContent = totalJobs;
