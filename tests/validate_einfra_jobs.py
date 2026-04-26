@@ -12,7 +12,7 @@ import base64
 
 SOLR_URL = "https://solr.peviitor.ro/solr/job/update"
 SOLR_AUTH = "solr:SolrRocks"
-COMPANIES = ["E-INFRA S.A.", "ELECTROGRUP SA", "NetCity", "Novapower", "DirectOne", "WeSEE"]
+COMPANIES = ["E-INFRA S.A.", "ELECTROGRUP SA", "NETCITY TELECOM S.A.", "NOVA POWER & GAS S.A.", "DIRECT ONE SA", "WIND ENERGY SERVICE EAST EUROPE SRL"]
 
 def get_jobs(company_name):
     jobs = []
