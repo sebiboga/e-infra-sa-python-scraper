@@ -69,6 +69,7 @@ def scrape_einfra_group():
                         location = tds[1].get_text(strip=True)
                 
                 city = "România"
+
                 if ',' in location:
                     parts = location.split(',')
                     city = parts[0].strip()
