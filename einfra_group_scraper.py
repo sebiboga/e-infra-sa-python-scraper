@@ -24,6 +24,15 @@ def scrape_einfra_group():
         "WESEE": "WIND ENERGY SERVICE EAST EUROPE SRL"
     }
 
+    cif_mapping = {
+        "DIRECT ONE SA": "22913844",
+        "E-INFRA S.A.": "38647188",
+        "ELECTROGRUP SA": "9256208",
+        "NOVA POWER & GAS S.A.": "18680651",
+        "NETCITY TELECOM S.A.": "22902080",
+        "WIND ENERGY SERVICE EAST EUROPE SRL": "26669972"
+    }
+
     current_company = None
     processed_urls = set()
     
@@ -49,7 +58,7 @@ def scrape_einfra_group():
                     continue
                 processed_urls.add(link)
                 
-                location = "Romania" 
+                location = "România" 
                 loc_tag = element.find('span', class_='resumator_description')
                 if loc_tag and "Location:" in loc_tag.get_text():
                     location = loc_tag.get_text().replace("Location:", "").strip()
@@ -58,8 +67,8 @@ def scrape_einfra_group():
                     if len(tds) > 1:
                         location = tds[1].get_text(strip=True)
                 
-                city = "Romania"
-                country = "Romania"
+                city = "România"
+                country = "România"
                 if ',' in location:
                     parts = location.split(',')
                     city = parts[0].strip()
@@ -73,8 +82,9 @@ def scrape_einfra_group():
                     "title": title,
                     "url": link,
                     "company": current_company,
+                    "cif": cif_mapping.get(current_company, ""),
                     "location": location_list,
-                    "country": ["Romania"],
+                    "country": ["România"],
                     "status": "published"
                 })
 
