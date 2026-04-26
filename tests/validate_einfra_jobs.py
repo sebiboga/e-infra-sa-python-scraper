@@ -29,8 +29,16 @@ def get_jobs(company_name):
 
 def check_url(url):
     try:
-        res = requests.head(url, allow_redirects=True, timeout=10)
-        return {"status": res.status_code, "ok": res.status_code == 200}
+        # Use GET instead of HEAD to get full content for checking
+        res = requests.get(url, allow_redirects=True, timeout=10)
+        
+        # Check for expired content
+        text = res.text.lower()
+        expired_indicators = ['nu mai este disponibil', 'acest anunt', 'nu mai este activ', 'expired', '404', 'this job is no longer available']
+        
+        is_expired = any(indicator in text for indicator in expired_indicators)
+        
+        return {"status": res.status_code, "ok": not is_expired, "expired": is_expired}
     except Exception as e:
         return {"status": 0, "ok": False, "error": str(e)}
 
@@ -73,7 +81,12 @@ def main():
         for job in jobs:
             result = check_url(job["url"])
             
-            if result["ok"]:
+            if result.get("expired"):
+                print(f"❌ EXPIRED - {job['job_title'][:40]}")
+                print(f"   URL: {job['url']}")
+                expired_jobs.append(job)
+                total_expired += 1
+            elif result["ok"]:
                 print(f"✅ {job['job_title'][:50]}")
                 total_active += 1
             elif result["status"] in [404, 0]:
