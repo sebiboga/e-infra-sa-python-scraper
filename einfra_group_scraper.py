@@ -69,11 +69,9 @@ def scrape_einfra_group():
                         location = tds[1].get_text(strip=True)
                 
                 city = "România"
-                country = "România"
                 if ',' in location:
                     parts = location.split(',')
                     city = parts[0].strip()
-                    country = parts[1].strip()
                 else:
                     city = location
                 
@@ -85,7 +83,6 @@ def scrape_einfra_group():
                     "company": current_company,
                     "cif": cif_mapping.get(current_company, ""),
                     "location": location_list,
-                    "country": ["România"],
                     "status": "published",
                     "date": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
                 })
