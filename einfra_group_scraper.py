@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from solr_connection import get_solr_connection
+import datetime
 
 def scrape_einfra_group():
     url = "https://electrogrup.applytojob.com/apply/jobs/"
@@ -85,7 +86,8 @@ def scrape_einfra_group():
                     "cif": cif_mapping.get(current_company, ""),
                     "location": location_list,
                     "country": ["România"],
-                    "status": "published"
+                    "status": "published",
+                    "date": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
                 })
 
     return jobs
