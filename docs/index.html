@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-INFRA Jobs - peviitor.ro</title>
+  <title>E-INFRA Group - peviitor.ro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -114,11 +114,6 @@
       opacity: 0.9;
       color: #fff;
     }
-    .stat-value-small {
-      font-size: 0.9em;
-      color: #fff;
-      margin-top: 5px;
-    }
     .features {
       background: #f8f9fa;
       border-radius: 10px;
@@ -166,27 +161,42 @@
     .btn:hover {
       transform: translateY(-2px);
     }
-    .jobs-list {
-      margin-top: 20px;
+    .company-section {
+      margin-top: 30px;
       width: 100%;
+      text-align: left;
+      border: 1px solid #ddd;
+      border-radius: 15px;
+      padding: 20px;
+      background: #f8f9fa;
     }
-    .jobs-list h3 {
+    .company-section h3 {
       color: #333;
       margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .jobs-list ul {
+    .company-section .job-count {
+      background: #e08d21;
+      color: #fff;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8em;
+    }
+    .company-section ul {
       list-style: none;
     }
-    .jobs-list li {
-      padding: 12px 0;
+    .company-section li {
+      padding: 10px 0;
       border-bottom: 1px solid #eee;
     }
-    .jobs-list a {
+    .company-section a {
       color: #e08d21;
       text-decoration: none;
       font-weight: 500;
     }
-    .jobs-list a:hover {
+    .company-section a:hover {
       text-decoration: underline;
     }
     .company-info {
@@ -254,17 +264,17 @@
       </div>
       
       <div class="scraper-info">
-        <h1>E-INFRA S.A.</h1>
-        <p>Scraper automat pentru job-urile E-INFRA de pe OLX și alte platforme.</p>
+        <h1>E-INFRA Group</h1>
+        <p>Scraper automat pentru job-urile companiilor din grupul E-INFRA (OLX și alte platforme).</p>
         
         <div class="stats">
           <div class="stat">
-            <div class="stat-value" id="jobsCount">-</div>
-            <div class="stat-label">Job-uri</div>
+            <div class="stat-value" id="totalJobs">-</div>
+            <div class="stat-label">Total Job-uri</div>
           </div>
           <div class="stat">
-            <div class="stat-value" id="verifiedCount">-</div>
-            <div class="stat-label">Verificate</div>
+            <div class="stat-value" id="companiesCount">-</div>
+            <div class="stat-label">Companii</div>
           </div>
           <div class="stat">
             <div class="stat-value" id="lastRunTime">-</div>
@@ -273,28 +283,23 @@
         </div>
         
         <div class="features">
-          <h3>Ce face acest scraper:</h3>
-          <ul>
-            <li>Extrage job-uri de pe OLX</li>
-            <li>Verifică cu Puppeteer (JavaScript)</li>
-            <li>Extrage tags și skills</li>
-            <li>Validează compania via ANAF</li>
-            <li>Salvează în SOLR pentru peviitor.ro</li>
+          <h3>Companii din grup:</h3>
+          <ul id="groupCompanies">
+            <li>E-INFRA S.A.</li>
+            <li>Electrogrup</li>
+            <li>NetCity</li>
+            <li>Novapower</li>
+            <li>DirectOne</li>
+            <li>WeSEE</li>
           </ul>
-        </div>
-        
-        <div class="company-info" id="companyInfo">
-          <h3>Despre companie:</h3>
-          <div class="company-details"></div>
         </div>
         
         <a class="btn" href="https://github.com/sebiboga/e-infra-sa-python-scraper/actions/workflows/scraper.yml" target="_blank">
           ▶ Rulează Scraper
         </a>
         
-        <div class="jobs-list" id="jobsList">
-          <h3>Job-uri disponibile:</h3>
-          <ul id="jobsListContent"></ul>
+        <div id="companiesList">
+          <!-- Companies will be loaded here -->
         </div>
       </div>
     </div>
@@ -307,87 +312,63 @@
   </footer>
 
   <script>
-    async function loadStats() {
-      try {
-        const res = await fetch('https://api.peviitor.ro/v1/search/?company=E-INFRA%20SA&page=1', {
-          headers: {
-            'origin': 'https://peviitor.ro',
-            'referer': 'https://peviitor.ro/'
-          }
-        });
-        const data = await res.json();
-        document.getElementById('jobsCount').textContent = data.response.numFound;
-        
-        const vRes = await fetch('https://api.peviitor.ro/v1/search/?company=E-INFRA%20SA&status=verified&page=1', {
-          headers: {
-            'origin': 'https://peviitor.ro',
-            'referer': 'https://peviitor.ro/'
-          }
-        });
-        const vData = await vRes.json();
-        document.getElementById('verifiedCount').textContent = vData.response.numFound;
-        
-        const now = new Date();
-        const time = now.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
-        const date = now.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        document.getElementById('lastRunTime').textContent = time;
-        document.getElementById('lastRunDate').textContent = date;
-        
-        const jobsList = document.getElementById('jobsListContent');
-        jobsList.innerHTML = '';
-        
-        let page = 1;
-        let moreJobs = true;
-        while (moreJobs) {
-          const jobsRes = await fetch(`https://api.peviitor.ro/v1/search/?company=E-INFRA%20SA&page=${page}`, {
-            headers: {
-              'origin': 'https://peviitor.ro',
-              'referer': 'https://peviitor.ro/'
-            }
-          });
-          const jobsData = await jobsRes.json();
-          if (jobsData.response.docs.length === 0) {
-            moreJobs = false;
-          } else {
-            jobsData.response.docs.forEach(job => {
-              const li = document.createElement('li');
-              li.innerHTML = `<a href="${job.url}" target="_blank">${job.job_title}</a>`;
-              jobsList.appendChild(li);
-            });
-            page++;
-          }
+    const companies = [
+      { name: 'E-INFRA S.A.', cif: '38647188' },
+      { name: 'ELECTROGRUP SA', cif: '9256208' },
+      { name: 'NetCity', cif: '16320552' },
+      { name: 'Novapower', cif: '34025836' },
+      { name: 'DirectOne', cif: '21343766' },
+      { name: 'WeSEE', cif: '38451874' }
+    ];
+
+    async function getJobs(companyName) {
+      const res = await fetch(`https://api.peviitor.ro/v1/search/?company=${encodeURIComponent(companyName)}&page=1`, {
+        headers: {
+          'origin': 'https://peviitor.ro',
+          'referer': 'https://peviitor.ro/'
         }
-        
-        const cRes = await fetch('https://api.peviitor.ro/v1/company/?cif=38647188', {
-          headers: {
-            'origin': 'https://peviitor.ro',
-            'referer': 'https://peviitor.ro/'
-          }
-        });
-        const cData = await cRes.json();
-        const comp = cData.company;
-        const detailsDiv = document.querySelector('.company-details');
-        if (comp) {
-          detailsDiv.innerHTML = `
-            <div class="detail-item"><strong>CIF:</strong> ${comp.id}</div>
-            <div class="detail-item"><strong>Brand:</strong> ${comp.brand}</div>
-            <div class="detail-item"><strong>Status:</strong> ${comp.status}</div>
-            <div class="detail-item"><strong>Orașe:</strong> ${comp.location.join(', ')}</div>
-            <div class="detail-item"><strong>Website:</strong> <a href="${comp.website[0]}" target="_blank">${comp.website[0]}</a></div>
-            <div class="detail-item"><strong>Career:</strong> <a href="${comp.career[0]}" target="_blank">${comp.career[0]}</a></div>
-            <div class="detail-item"><strong>Ultimul scrape:</strong> ${comp.lastScraped || 'N/A'}</div>
-          `;
-        }
-      } catch(e) {
-        document.getElementById('jobsCount').textContent = '1';
-        document.getElementById('verifiedCount').textContent = '1';
-        const now = new Date();
-        document.getElementById('lastRunTime').textContent = now.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('lastRunDate').textContent = now.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      }
+      });
+      const data = await res.json();
+      return data.response.docs;
     }
+
+    async function loadStats() {
+      let totalJobs = 0;
+      let companiesWithJobs = 0;
+      const now = new Date();
+      document.getElementById('lastRunTime').textContent = now.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('lastRunDate').textContent = now.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+      const listDiv = document.getElementById('companiesList');
+      listDiv.innerHTML = '';
+
+      for (const comp of companies) {
+        const jobs = await getJobs(comp.name);
+        if (jobs.length > 0) {
+          companiesWithJobs++;
+          totalJobs += jobs.length;
+          
+          const section = document.createElement('div');
+          section.className = 'company-section';
+          
+          let jobsHtml = '';
+          jobs.forEach(job => {
+            jobsHtml += `<li><a href="${job.url}" target="_blank">${job.job_title}</a></li>`;
+          });
+          
+          section.innerHTML = `
+            <h3>${comp.name} <span class="job-count">${jobs.length} job-uri</span></h3>
+            <ul>${jobsHtml}</ul>
+          `;
+          listDiv.appendChild(section);
+        }
+      }
+
+      document.getElementById('totalJobs').textContent = totalJobs;
+      document.getElementById('companiesCount').textContent = companiesWithJobs;
+    }
+
     loadStats();
-    setInterval(loadStats, 30000);
   </script>
 </body>
 </html>
