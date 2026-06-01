@@ -1,13 +1,52 @@
 name: Tests
 
 on:
+  schedule:
+    - cron: '0 7 * * *'
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run mode (no deletions)'
+        required: true
+        default: 'true'
 
 jobs:
+  validate-jobs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate and remove expired jobs
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "Schedule trigger — running LIVE mode..."
+            python tests/validate_einfra_jobs.py --delete
+          elif [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            echo "Running in DRY RUN mode..."
+            python tests/validate_einfra_jobs.py --dry-run
+          else
+            echo "Running in LIVE mode (will delete expired jobs)..."
+            python tests/validate_einfra_jobs.py --delete
+          fi
+
   test:
     runs-on: ubuntu-latest
     env:
@@ -30,8 +69,6 @@ jobs:
         run: |
           echo "SOLR_USER=${{ secrets.SOLR_USER }}" > .env.local
           echo "SOLR_PASS=${{ secrets.SOLR_PASS }}" >> .env.local
-          echo "SOLR_JOBS_CORE=${{ secrets.SOLR_JOBS_CORE }}" >> .env.local
-          echo "SOLR_COMPANY_CORE=${{ secrets.SOLR_COMPANY_CORE }}" >> .env.local
 
       - name: Run Tests
         run: |

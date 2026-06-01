@@ -3,6 +3,7 @@ import os
 import requests
 from solr_connection import get_solr_connection, SOLR_BASE_URL, SOLR_USER, SOLR_PASS
 
+@pytest.mark.solr
 def test_random_job_extraction():
     """Test that we can connect to 'job' core and fetch a random document."""
     core = "job"
@@ -17,6 +18,7 @@ def test_random_job_extraction():
     print(f"Title: {job.get('title')}")
     assert 'url' in job
 
+@pytest.mark.solr
 def test_company_field_extraction():
     """Test that we can connect to 'company' core and see the fields of a document."""
     core = "company"
@@ -29,6 +31,7 @@ def test_company_field_extraction():
     print(f"\n[Company Fields] Keys found: {list(company.keys())}")
     print(f"Sample Company: {company.get('company') or company.get('name')}")
 
+@pytest.mark.solr
 def test_extract_solr_schema():
     """Fetch the actual schema fields from Solr for both cores."""
     for core in ["job", "company"]:
@@ -43,6 +46,7 @@ def test_extract_solr_schema():
         else:
             print(f"❌ Failed to fetch schema for {core}: {response.status_code}")
 
+@pytest.mark.solr
 def test_schema_vs_readme_models():
     """Compare Solr schema fields with models defined in readme.md."""
     models = {

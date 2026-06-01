@@ -27,10 +27,13 @@ def get_jobs(company_name):
         page += 1
     return jobs
 
+HEADERS_CHECK = {
+    "User-Agent": "job_seeker_ro_spider"
+}
+
 def check_url(url):
     try:
-        # Use GET instead of HEAD to get full content for checking
-        res = requests.get(url, allow_redirects=True, timeout=10)
+        res = requests.get(url, allow_redirects=True, timeout=10, headers=HEADERS_CHECK)
         
         # Check for expired content
         text = res.text.lower()

@@ -3,9 +3,13 @@ from bs4 import BeautifulSoup
 from solr_connection import get_solr_connection
 import datetime
 
+HEADERS = {
+    "User-Agent": "job_seeker_ro_spider"
+}
+
 def scrape_einfra_group():
     url = "https://electrogrup.applytojob.com/apply/jobs/"
-    response = requests.get(url)
+    response = requests.get(url, headers=HEADERS)
     soup = BeautifulSoup(response.text, 'html.parser')
     
     jobs = []

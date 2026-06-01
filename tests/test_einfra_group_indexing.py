@@ -1,6 +1,8 @@
 import unittest
+import pytest
 from solr_connection import get_solr_connection
 
+@pytest.mark.solr
 class TestEInfraGroupIndexing(unittest.TestCase):
     def setUp(self):
         self.solr_company = get_solr_connection("company")
