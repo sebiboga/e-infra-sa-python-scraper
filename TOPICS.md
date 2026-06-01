@@ -8,7 +8,6 @@ Topics (etichetele) din secțiunea **About** a repo-ului pe GitHub se adaugă cu
 |-------|-----------|
 | `job-seeker-ro-spider` | Numele scraperului (User-Agent-ul folosit în toate request-urile HTTP) |
 | `peviitor-ro` | Platforma pentru care se face scraping-ul |
-| `e-infra` | Grupul de companii E-INFRA |
 
 ## Reguli
 
